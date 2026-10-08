@@ -91,4 +91,5 @@ Endpoints: `POST /api/download {url}` → job_id · `GET /api/progress/{job_id}`
 - [x] `app.js`: `DEFAULT_BACKEND` -> `https://free-video-downloader-web.onrender.com` (funciona sin configurar nada; override local sigue disponible via Configuracion)
 - [x] `index.html`: placeholder del input de backend -> URL de Render
 - [x] Verificacion: `node --check app.js` OK
-- [~] Subir `frontend/app.js` + `frontend/index.html` a GitHub (auto-deploy de Pages)
+- [x] Subir `frontend/app.js` + `frontend/index.html` a GitHub (auto-deploy de Pages) — commit 9779ddc pusheado a origin/main
+- [x] Migración automática: `getBackend()` descarta valores `localhost`/`127.0.0.1` guardados en localStorage y usa el default Render — commit 17a8819 (cero configuración: pegar link → progreso → descarga directa)
