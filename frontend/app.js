@@ -26,7 +26,15 @@
 
   function getBackend() {
     var v = localStorage.getItem(BACKEND_KEY);
-    return v ? v.replace(/\/+$/, "") : DEFAULT_BACKEND;
+    if (v) {
+      v = v.replace(/\/+$/, "");
+      // Migración: valores localhost guardados antes del default Render se descartan (cero configuración)
+      if (/localhost|127\.0\.0\.1/.test(v)) {
+        localStorage.removeItem(BACKEND_KEY);
+        v = "";
+      }
+    }
+    return v || DEFAULT_BACKEND;
   }
 
   function showError(msg) {
