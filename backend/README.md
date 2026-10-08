@@ -1,23 +1,34 @@
----
-title: Video Downloader API
-emoji: 📥
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 # Video Downloader API (backend)
 
-Backend FastAPI + yt-dlp para la web de descarga de videos. Despliegue en Hugging Face Spaces (Docker).
+Backend FastAPI + yt-dlp para la web de descarga de videos. Despliegue gratis en **Render** (Free tier, Docker).
 
-## Subir a Hugging Face Spaces
+> **Nota (2026-10-08)**: Hugging Face Spaces ahora exige plan pago (PRO) para Spaces con Docker o Gradio — solo los Static son gratis. Render sigue ofreciendo web services gratis (verificado en docs oficiales).
 
-1. Crea una cuenta gratis en huggingface.co.
-2. **New Space** → nombre p. ej. `video-downloader-api` → SDK: **Docker** → Hardware: **CPU basic (free)** → público o privado.
-3. Sube los archivos de esta carpeta (`main.py`, `requirements.txt`, `Dockerfile`) y este `README.md` a la raíz del Space (con la web de HF o con git: `git remote add space https://huggingface.co/spaces/TU_USUARIO/video-downloader-api`).
-4. El Space construye la imagen (instala ffmpeg) y expone `https://TU_USUARIO-video-downloader-api.hf.space` con HTTPS automático.
+## Subir a Render (Free tier)
+
+1. Sube el repositorio a GitHub (rama `main`).
+2. Crea cuenta gratis en [render.com](https://render.com) — corre sin tarjeta (si agotas el ancho de banda mensual sin tarjeta, tus servicios gratuitos se pausan hasta el mes siguiente).
+3. Dashboard → **New → Web Service** → conecta el repo → configura:
+   - **Root Directory**: `backend`
+   - **Runtime**: Docker (detecta el Dockerfile automáticamente)
+   - **Instance Type**: Free
+4. Render construye la imagen (el Dockerfile instala ffmpeg) y expone HTTPS automático en:
+   `https://TU-SERVICIO.onrender.com`
+5. Comprueba `https://TU-SERVICIO.onrender.com/api/health` → `{"status":"ok"}`.
+
+## Limitaciones del Free tier (docs oficiales de Render)
+
+- El servicio duerme tras 15 min sin tráfico; la primera petición tarda ~1 min en despertarlo.
+- RAM 512 MB / 0.1 CPU: clips y videos cortos OK; videos muy largos (2+ h, 1080p) pueden agotar el disco efímero.
+- Sin disco persistente: los archivos se pierden al redeploy (el backend ya los borra a la 1 hora).
+- Sin shell SSH. Ancho de banda de salida contra el límite mensual gratis.
+
+## Ejecutar en local
+
+```bash
+pip install -r requirements.txt   # requiere ffmpeg instalado en el sistema
+python main.py                    # http://localhost:7860
+```
 
 ## Endpoints
 
@@ -30,4 +41,5 @@ Backend FastAPI + yt-dlp para la web de descarga de videos. Despliegue en Huggin
 
 - Los archivos se eliminan 1 hora después de crearse (almacenamiento efímero).
 - yt-dlp soporta miles de sitios (YouTube, TikTok, Twitter/X, Instagram, Vimeo, etc.).
-- Documentación interactiva: `https://TU_USUARIO-video-downloader-api.hf.space/docs`
+- yt-dlp se actualiza con frecuencia: en Render haz **Manual Deploy → Clear build cache** si una descarga falla.
+- Documentación interactiva: `https://TU-SERVICIO.onrender.com/docs`

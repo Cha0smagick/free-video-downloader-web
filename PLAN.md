@@ -65,6 +65,13 @@ Endpoints: `POST /api/download {url}` → job_id · `GET /api/progress/{job_id}`
 - [~] `git init` + commit inicial — OMITIDO: el usuario no lo pidió explícitamente (ejecutar cuando lo pida)
 - [x] Resumen final: qué cambió, dónde, evidencia de verificación
 
+### Paso 8 — Pivot de hosting: HF Spaces pago → Render Free
+- [x] Verificar de docs oficiales: HF Spaces exige plan pago (PRO) para Docker/Gradio; solo Static gratis. Render Free sí ofrece web services gratis (HTTPS gestionado ✓, Docker no excluido ✓, corre sin tarjeta ✓, sleep 15 min + ~1 min wake ✓)
+- [x] README.md: Render Free como backend principal ( pasos de deploy + limitaciones del free tier )
+- [x] backend/README.md: reescrito con deploy en Render Free + nota de HF pago
+- [x] frontend (index.html + app.js): notas actualizadas de HF → Render
+- [~] Desplegar en Render real: requiere cuenta GitHub + repo remoto del usuario (pendiente de acción del usuario)
+
 ## Criterios de éxito
 - Backend descarga un video real de YouTube localmente y sirve el archivo ✓ verificado
 - Frontend pega URL, muestra progreso real y permite descargar ✓ verificado

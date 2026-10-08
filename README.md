@@ -3,7 +3,7 @@
 Web minimalista para descargar videos de **YouTube** y de **miles de sitios web** (todo lo soportado por [yt-dlp](https://github.com/yt-dlp/yt-dlp)). Gratis, sin registro y sin límites de plataforma.
 
 - **Frontend**: HTML/CSS/JS vanilla, sin build → se despliega en **GitHub Pages** (con GitHub Actions).
-- **Backend**: FastAPI + yt-dlp + ffmpeg en Docker → se despliega gratis en **Hugging Face Spaces**.
+- **Backend**: FastAPI + yt-dlp + ffmpeg en Docker → se despliega gratis en **Render** (Free tier).
 
 ---
 
@@ -14,7 +14,7 @@ frontend/                  → GitHub Pages
   index.html               → UI: pegar URL → progreso → descargar
   style.css                → tema dark minimalista
   app.js                   → polling de progreso, sin frameworks
-backend/                   → Hugging Face Spaces (Docker)
+backend/                   → Render Free (Docker)
   main.py                  → API + yt-dlp (jobs en memoria + progress hooks)
   requirements.txt         → fastapi, uvicorn, yt-dlp
   Dockerfile               → imagen con ffmpeg incluido
@@ -53,16 +53,25 @@ python -m http.server 8080        # http://localhost:8080
 
 ## Despliegue (100% gratis)
 
-### 1. Backend en Hugging Face Spaces (recomendado)
+### 1. Backend en Render (Free tier, recomendado)
 
-1. Crea una cuenta gratis en [huggingface.co](https://huggingface.co) → **New Space**.
-2. Configura: **SDK = Docker**, nombre p. ej. `video-downloader`.
-3. Sube los 3 archivos de `backend/` (`main.py`, `requirements.txt`, `Dockerfile`) al Space (arrastrar y soltar en la web o con git).
-4. El Space construye la imagen (instala ffmpeg solo) y queda en:
-   `https://TU-USUARIO-video-downloader.hf.space`
-5. Comprueba `https://TU-USUARIO-video-downloader.hf.space/api/health` → `{"status":"ok"}`.
+> **Nota (2026-10-08)**: Hugging Face Spaces ahora exige plan pago (PRO) para crear Spaces con Docker o Gradio — solo los Static son gratis. Render sigue ofreciendo **web services gratis** (verificado en docs oficiales de Render).
 
-**Notas**: el Space gratuito duerme tras ~48 h de inactividad (arranque en frío ~1-2 min). Los archivos descargados se borran automáticamente a la 1 hora.
+1. Sube este repositorio a GitHub (rama `main`).
+2. Crea cuenta gratis en [render.com](https://render.com) — **sin tarjeta**: corre sin método de pago (si agotas el ancho de banda mensual sin tarjeta, tus servicios gratuitos se pausan hasta el mes siguiente).
+3. Dashboard → **New → Web Service** → conecta el repo de GitHub → configura:
+   - **Root Directory**: `backend`
+   - **Runtime**: Docker (detecta el Dockerfile automáticamente)
+   - **Instance Type**: Free
+4. Render construye la imagen (el Dockerfile instala ffmpeg) y expone **HTTPS automático** en:
+   `https://TU-SERVICIO.onrender.com`
+5. Comprueba `https://TU-SERVICIO.onrender.com/api/health` → `{"status":"ok"}`.
+
+**Limitaciones del Free tier** (de docs oficiales de Render):
+- El servicio **duerme tras 15 min sin tráfico**; la primera petición tarda ~1 min en despertarlo.
+- RAM 512 MB / 0.1 CPU: perfecto para clips y videos cortos; videos muy largos (2+ h, 1080p) pueden agotar el disco efímero.
+- Sin disco persistente: los archivos se pierden al redeploy (el backend ya los borra a la 1 hora por su cuenta).
+- Sin shell SSH. El ancho de banda de salida cuenta contra el límite mensual gratis.
 
 ### 2. Frontend en GitHub Pages
 
@@ -73,13 +82,13 @@ python -m http.server 8080        # http://localhost:8080
 
 ### 3. Conectar el frontend con el backend
 
-Abre tu página en GitHub Pages → **⚙ Configuración del backend** → pega la URL del Space:
+Abre tu página en GitHub Pages → **⚙ Configuración del backend** → pega la URL del backend:
 ```
-https://TU-USUARIO-video-downloader.hf.space
+https://TU-SERVICIO.onrender.com
 ```
 Se guarda en `localStorage` (solo hay que hacerlo una vez por navegador).
 
-> ⚠️ **Importante**: si la página está en HTTPS (GitHub Pages), el backend **debe** estar en HTTPS. Un backend en `http://` será bloqueado por el navegador (mixed content). Hugging Face Spaces da HTTPS automático.
+> ⚠️ **Importante**: si la página está en HTTPS (GitHub Pages), el backend **debe** estar en HTTPS. Un backend en `http://` será bloqueado por el navegador (mixed content). Render da HTTPS automático.
 
 ---
 
@@ -115,7 +124,7 @@ Si prefieres más potencia y siempre encendido (sin cold start), el Always Free 
    ```
 5. **HTTPS obligatorio**: el frontend de GitHub Pages exige HTTPS en el backend. Opciones:
    - Tu propio dominio apuntando a la IP pública (registro A) + [Caddy](https://caddyserver.com) o nginx + certbot (Let's Encrypt) como reverse proxy en el puerto 443.
-   - Sin dominio propio, usa Hugging Face Spaces (HTTPS automático) — más simple.
+   - Sin dominio propio, usa Render Free (HTTPS automático) — más simple.
 6. Nota: las instancias Arm a veces no tienen capacidad disponible en tu región; las instancias idle pueden ser reclamadas si no hay uso.
 
 ---
@@ -124,4 +133,4 @@ Si prefieres más potencia y siempre encendido (sin cold start), el Always Free 
 
 - El backend no requiere API keys; CORS está abierto (`*`) para que GitHub Pages pueda llamarlo.
 - Los jobs y archivos viven en memoria/disco temporal del servidor y se limpian a la 1 hora (no hay almacenamiento persistente — es una herramienta de descarga, no un hosting).
-- yt-dlp se actualiza con frecuencia (YouTube cambia su API): en HF Spaces reconstruye el Space o usa `pip install -U yt-dlp` en local si una descarga falla.
+- yt-dlp se actualiza con frecuencia (YouTube cambia su API): en Render haz **Manual Deploy → Clear build cache** o usa `pip install -U yt-dlp` en local si una descarga falla.

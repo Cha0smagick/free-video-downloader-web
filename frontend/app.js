@@ -62,7 +62,7 @@
 
   function warnProtocol() {
     if (location.protocol === "https:" && getBackend().indexOf("http://") === 0) {
-      showError("La página está en HTTPS pero el backend en HTTP: el navegador bloqueará las peticiones. Configura un backend con HTTPS (p. ej. Hugging Face Spaces).");
+      showError("La página está en HTTPS pero el backend en HTTP: el navegador bloqueará las peticiones. Configura un backend con HTTPS (p. ej. Render, que da HTTPS automático).");
     }
   }
 
