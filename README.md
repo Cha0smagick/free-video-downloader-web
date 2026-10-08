@@ -73,6 +73,27 @@ python -m http.server 8080        # http://localhost:8080
 - Sin disco persistente: los archivos se pierden al redeploy (el backend ya los borra a la 1 hora por su cuenta).
 - Sin shell SSH. El ancho de banda de salida cuenta contra el límite mensual gratis.
 
+### Cookies para YouTube en la nube
+
+YouTube bloquea las descargas desde IPs de datacenter (como Render) con el error
+`Sign in to confirm you're not a bot` a menos que el backend use una sesión autenticada.
+Las demás plataformas (TikTok, Vimeo, Twitter/X…) normalmente **no** requieren cookies.
+
+**Solución**: exporta las cookies de tu navegador (con la sesión de YouTube iniciada) con la
+extensión **[Get cookies.txt](https://chromewebstore.google.com/detail/get-cookiestxt/bgaddhkoddajcdgocldbbfleckgcbcid)**
+y ponlas a disposición del backend de una de estas dos formas:
+
+1. **Repositorio privado**: guarda el archivo como `backend/cookies.txt` (el backend lo detecta
+   automáticamente si está junto a `main.py`). ⚠️ Las cookies de YouTube son **tokens de sesión**:
+   el repositorio **debe ser privado**; si se filtran, cierra sesión en YouTube para revocarlas.
+2. **Render Secret Files**: en el dashboard del servicio → **Environment → Secret Files** → añade
+   `/etc/secrets/cookies.txt` con el contenido exportado (el backend lo busca en esa ruta; también
+   acepta la variable de entorno `YTDLP_COOKIES_FILE` con la ruta). Disponibilidad en el free tier
+   sin verificar — si no está disponible, usa la opción 1.
+
+Puedes comprobar el estado en la portada del backend (`https://TU-SERVICIO.onrender.com/`):
+mostrará **`Cookies: activos ✓`** cuando las detecte.
+
 ### 2. Frontend en GitHub Pages
 
 1. Sube este repositorio a GitHub (rama `main`).

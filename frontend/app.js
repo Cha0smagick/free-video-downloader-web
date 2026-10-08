@@ -3,7 +3,7 @@
   "use strict";
 
   var BACKEND_KEY = "ytdlp_backend_url";
-  var DEFAULT_BACKEND = "http://localhost:7860";
+  var DEFAULT_BACKEND = "https://free-video-downloader-web.onrender.com";
   var POLL_MS = 1500;
 
   var form = document.getElementById("download-form");

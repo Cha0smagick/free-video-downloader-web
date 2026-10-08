@@ -23,6 +23,23 @@ Backend FastAPI + yt-dlp para la web de descarga de videos. Despliegue gratis en
 - Sin disco persistente: los archivos se pierden al redeploy (el backend ya los borra a la 1 hora).
 - Sin shell SSH. Ancho de banda de salida contra el límite mensual gratis.
 
+## Cookies para YouTube
+
+YouTube bloquea descargas desde IPs de datacenter (Render) con `Sign in to confirm you're not a bot`
+sin sesión autenticada. Otras plataformas normalmente no requieren cookies.
+
+Exporta las cookies del navegador (sesión de YouTube iniciada) con la extensión
+**[Get cookies.txt](https://chromewebstore.google.com/detail/get-cookiestxt/bgaddhkoddajcdgocldbbfleckgcbcid)** y:
+
+1. Guárdalas como `cookies.txt` junto a `main.py` en un **repositorio privado** (tokens de sesión —
+   si se filtran, cierra sesión en YouTube para revocarlas), **o**
+2. Añádelas como **Secret File** en Render: Environment → Secret Files → `/etc/secrets/cookies.txt`
+   (disponibilidad en free tier sin verificar), **o**
+3. Define la variable de entorno `YTDLP_COOKIES_FILE` con la ruta absoluta al archivo.
+
+El backend las detecta en ese orden y las usa automáticamente. La portada `/` muestra
+**`Cookies: activos ✓`** cuando están configuradas.
+
 ## Ejecutar en local
 
 ```bash

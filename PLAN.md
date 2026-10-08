@@ -72,8 +72,23 @@ Endpoints: `POST /api/download {url}` → job_id · `GET /api/progress/{job_id}`
 - [x] frontend (index.html + app.js): notas actualizadas de HF → Render
 - [~] Desplegar en Render real: requiere cuenta GitHub + repo remoto del usuario (pendiente de acción del usuario)
 
+### Paso 9 — Correcciones post-deploy
+- [x] Verificado backend desplegado en Render: `GET /api/health` → 200 `{"status":"ok"}` (el servicio SÍ está vivo)
+- [x] Diagnóstico: `{"detail":"Not Found"}` en `/` = FastAPI sin ruta raíz (cosmético) · YouTube bloquea IPs de datacenter (Render) sin cookies → error real de descarga
+- [x] `main.py`: ruta raíz `/` con página de estado (endpoints + estado de cookies)
+- [x] `main.py`: soporte cookies multi-ruta (env `YTDLP_COOKIES_FILE` → `/etc/secrets/cookies.txt` Render Secret Files → `cookies.txt` junto a main.py); fix Ruff PIE810
+- [x] README: sección cookies (exportar del navegador, repo privado o Secret Files)
+- [x] Verificación local de la ruta raíz y estado de cookies (GET / → 200 "Cookies: activos ✓" con cookies.txt dummy; dummy eliminado tras la prueba)
+
 ## Criterios de éxito
 - Backend descarga un video real de YouTube localmente y sirve el archivo ✓ verificado
 - Frontend pega URL, muestra progreso real y permite descargar ✓ verificado
-- Deploy listo: Dockerfile válido para HF Spaces + workflow de Pages funcional
-- "Cualquier plataforma": yt-dlp soporta miles de sitios por defecto (sin filtro de dominio)
+- Deploy listo: Dockerfile válido para Render Free + workflow de Pages funcional
+- "Cualquier plataforma": yt-dlp soporta miles de sitios por defecto (sin filtro de dominio); YouTube desde la nube requiere cookies (implementado)
+
+### Paso 10 - Fix UX: backend por defecto automatico y transparente
+- [x] Diagnostico: el default de ytdlp_backend_url seguia siendo `http://localhost:7860` (HTTP) -> en la pagina HTTPS de GitHub Pages el navegador bloquea el fetch (mixed content) + no hay backend local -> advertencia de protocolo y "Failed to fetch"
+- [x] `app.js`: `DEFAULT_BACKEND` -> `https://free-video-downloader-web.onrender.com` (funciona sin configurar nada; override local sigue disponible via Configuracion)
+- [x] `index.html`: placeholder del input de backend -> URL de Render
+- [x] Verificacion: `node --check app.js` OK
+- [~] Subir `frontend/app.js` + `frontend/index.html` a GitHub (auto-deploy de Pages)

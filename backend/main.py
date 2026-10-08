@@ -8,8 +8,9 @@ Endpoints:
 
 Los jobs viven en memoria (dict). Los archivos se guardan en DOWNLOAD_DIR y un
 janitor los elimina 1 hora después de su creación (idóneo para almacenamiento
-efímero de Hugging Face Spaces / Render).
+efímero de Render Free).
 """
+import os
 import threading
 import time
 import uuid
@@ -17,7 +18,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel
 from yt_dlp import YoutubeDL
 
@@ -84,6 +85,20 @@ def _find_final_file(info: dict) -> Path | None:
     return max(candidates, key=lambda p: p.stat().st_mtime)
 
 
+def _cookies_file() -> Path | None:
+    """Resuelve el archivo de cookies (necesario para YouTube desde IPs de datacenter).
+
+    Orden de búsqueda:
+    1. Variable de entorno YTDLP_COOKIES_FILE (ruta absoluta)
+    2. /etc/secrets/cookies.txt — montaje estándar de Render Secret Files
+    3. cookies.txt junto a main.py (commit en repo privado)
+    """
+    env = os.environ.get("YTDLP_COOKIES_FILE")
+    candidates = [Path(env)] if env else []
+    candidates += [Path("/etc/secrets/cookies.txt"), Path(__file__).parent / "cookies.txt"]
+    return next((c for c in candidates if c.is_file()), None)
+
+
 def _worker(job_id: str, url: str) -> None:
     progress_hook, postproc_hook = _make_hooks(job_id)
     ydl_opts = {
@@ -100,6 +115,11 @@ def _worker(job_id: str, url: str) -> None:
         "progress_hooks": [progress_hook],
         "postprocessor_hooks": [postproc_hook],
     }
+    cookies = _cookies_file()
+    if cookies is not None:
+        # YouTube bloquea IPs de datacenter sin sesión autenticada; las cookies
+        # la aportan. Otras plataformas no suelen necesitarlas.
+        ydl_opts["cookiefile"] = str(cookies)
     try:
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
@@ -145,7 +165,7 @@ threading.Thread(target=_janitor, daemon=True).start()
 @app.post("/api/download")
 def start_download(req: DownloadRequest) -> dict:
     url = req.url.strip()
-    if not (url.startswith("http://") or url.startswith("https://")):
+    if not url.startswith(("http://", "https://")):
         raise HTTPException(status_code=400, detail="URL inválida: debe empezar por http:// o https://")
     job_id = uuid.uuid4().hex[:12]
     with _lock:
@@ -191,6 +211,33 @@ def get_file(job_id: str) -> FileResponse:
 @app.get("/api/health")
 def health() -> dict:
     return {"status": "ok"}
+
+
+@app.get("/", response_class=HTMLResponse)
+def root() -> str:
+    """Página de estado para la raíz del servicio."""
+    cookies_state = (
+        "activos ✓"
+        if _cookies_file() is not None
+        else "no configurados — YouTube puede bloquear descargas desde la nube sin ellos"
+    )
+    return f"""<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><title>Video Downloader API</title>
+<style>
+body{{font-family:sans-serif;background:#0f1115;color:#f5f7ff;max-width:640px;margin:40px auto;padding:0 20px}}
+h1{{color:#ffb03a}}a{{color:#35c4d9}}code{{background:#181b21;padding:2px 6px;border-radius:6px}}li{{margin:8px 0}}
+</style></head>
+<body>
+<h1>Video Downloader API</h1>
+<p>Backend de descarga <b>activo</b>. Abre el frontend desplegado en GitHub Pages, o usa la API directamente:</p>
+<ul>
+<li><code>GET /api/health</code> — estado del servicio</li>
+<li><code>POST /api/download</code> con <code>{{"url": "..."}}</code> → devuelve <code>job_id</code></li>
+<li><code>GET /api/progress/{{job_id}}</code> — progreso</li>
+<li><code>GET /api/file/{{job_id}}</code> — archivo descargado</li>
+</ul>
+<p>Cookies: <b>{cookies_state}</b></p>
+</body></html>"""
 
 
 if __name__ == "__main__":
