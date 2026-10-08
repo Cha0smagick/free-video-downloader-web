@@ -65,6 +65,12 @@ Endpoints: `POST /api/download {url}` → job_id · `GET /api/progress/{job_id}`
 - [~] `git init` + commit inicial — OMITIDO: el usuario no lo pidió explícitamente (ejecutar cuando lo pida)
 - [x] Resumen final: qué cambió, dónde, evidencia de verificación
 
+### Paso 11 - PO Tokens: navegador emulado para YouTube en la nube
+- [x] Auditoría (README oficial bgutil-ytdlp-pot-provider): plugin `pip install bgutil-ytdlp-pot-provider` + generador Node HTTP en 127.0.0.1:4416 (recomendado); caveat oficial: PO Token NO evade restricciones por IP (datacenter puede seguir pidiendo cookies)
+- [x] Dockerfile: node+npm+git; clona generador bgutil, `npm ci` + `npx tsc`; CMD corre servidor PO (127.0.0.1:4416) en background + uvicorn — commit af5352e
+- [x] requirements.txt: + bgutil-ytdlp-pot-provider — commit af5352e; backend/README.md: sección PO Tokens — commit 3104b64
+- [x] Verificación local: plugin cargado (`PO Token Providers: bgutil:http-2.0.2 (external)`, bgutil:script-node/deno unavailable — esperado sin repo local)
+- [~] Pendiente (usuario): Render auto-rebuild (npm ci tarda unos min) → probar descarga de YouTube en https://free-video-downloader-web.onrender.com — si sigue el error "Sign in to confirm...", añadir cookies (sección README, fix más fiable para datacenter IPs)
 ### Paso 8 — Pivot de hosting: HF Spaces pago → Render Free
 - [x] Verificar de docs oficiales: HF Spaces exige plan pago (PRO) para Docker/Gradio; solo Static gratis. Render Free sí ofrece web services gratis (HTTPS gestionado ✓, Docker no excluido ✓, corre sin tarjeta ✓, sleep 15 min + ~1 min wake ✓)
 - [x] README.md: Render Free como backend principal ( pasos de deploy + limitaciones del free tier )
