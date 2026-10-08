@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Descarga videos de YouTube y de miles de sitios web. Rápido, gratis y sin registro.">
+  <title>Video Downloader</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='11' fill='%23FFB03A'/><path d='M10 8l6 4-6 4z' fill='%230B1026'/></svg>">
+</head>
+<body>
+  <main class="card">
+    <h1>Video <span class="accent">Downloader</span></h1>
+    <p class="subtitle">Descarga videos de YouTube y miles de sitios web. Sin registro.</p>
+
+    <form id="download-form" autocomplete="off">
+      <div class="input-row">
+        <input type="url" id="url" placeholder="Pega aquí la URL del video…" required>
+        <button type="submit" id="btn-download">Descargar</button>
+      </div>
+    </form>
+
+    <div id="status" class="status hidden"></div>
+
+    <div id="progress-wrap" class="progress-wrap hidden">
+      <div class="progress-meta">
+        <span id="progress-title" class="progress-title"></span>
+        <span id="progress-pct" class="progress-pct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div id="progress-bar" class="progress-bar" style="width:0%"></div>
+      </div>
+      <div id="progress-info" class="progress-info"></div>
+    </div>
+
+    <div id="result" class="result hidden">
+      <a id="download-link" class="btn-result" download>⬇ Guardar video</a>
+      <span id="result-info" class="result-info"></span>
+    </div>
+
+    <div id="error" class="error hidden"></div>
+
+    <details class="settings">
+      <summary>⚙ Configuración del backend</summary>
+      <div class="settings-row">
+        <input type="url" id="backend-url" placeholder="http://localhost:7860">
+        <button type="button" id="btn-save-backend">Guardar</button>
+      </div>
+      <p class="settings-note">Si esta página está en GitHub Pages, el backend debe usar HTTPS (p. ej. Hugging Face Spaces).</p>
+    </details>
+  </main>
+
+  <footer>Hecho con <span class="accent">yt-dlp</span> · gratis y sin límites de plataforma</footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

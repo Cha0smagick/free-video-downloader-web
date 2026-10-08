@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Descargas temporales del backend
+backend/downloads/
+*.part
+*.ytdl
+
+# Entorno
+.env
+.env.local
+
+# Editor/OS
+.DS_Store
+Thumbs.db
+
+# Codegraph local
+.codegraph/
