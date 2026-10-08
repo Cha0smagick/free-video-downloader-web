@@ -23,6 +23,13 @@ Backend FastAPI + yt-dlp para la web de descarga de videos. Despliegue gratis en
 - Sin disco persistente: los archivos se pierden al redeploy (el backend ya los borra a la 1 hora).
 - Sin shell SSH. Ancho de banda de salida contra el límite mensual gratis.
 
+## PO Tokens para YouTube (navegador emulado)
+
+El Docker instala [bgutil-ytdlp-pot-provider](https://github.com/Brainicism/bgutil-ytdlp-pot-provider): un plugin de yt-dlp con un generador de **PO Tokens** (BotGuard emulado con Node.js) que corre en `127.0.0.1:4416` dentro del contenedor. Le da a YouTube tokens de "navegador real" para reducir el bloqueo `Sign in to confirm you're not a bot` en IPs de datacenter.
+
+- **Caveat oficial**: un PO Token NO evade restricciones por IP — en datacenter IPs (Render) YouTube puede seguir pidiendo cookies. Las cookies (ver sección siguiente) siguen siendo el fix más fiable para YouTube; el PO Token ayuda y no estorba.
+- Verificación: `yt-dlp -v URL` debe listar `PO Token Providers: bgutil:http-…` y una línea `Generating a … PO Token`.
+
 ## Cookies para YouTube
 
 YouTube bloquea descargas desde IPs de datacenter (Render) con `Sign in to confirm you're not a bot`
